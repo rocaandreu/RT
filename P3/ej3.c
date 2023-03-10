@@ -38,7 +38,8 @@ int main(int argc, char const *argv[])
     {
         printf("%ld\n", a[i]);
     }
-    
-
     return 0;
 }
+
+/*Como los dos hilos comparten memoria, al no haber ninguna regulación al acceso, no siempre se coordinan 
+para sumar un hilo despues del otro, haciendo que no salga 20000*/
