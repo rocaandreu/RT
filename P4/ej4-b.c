@@ -32,7 +32,6 @@ int main()
         *valid = 0;     
 
     }
-
     printf("%d\n", *ready);
 
     //Unmapeamos memoria y desvinculamos la región

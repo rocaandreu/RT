@@ -36,6 +36,8 @@ int main()
         *valid = 1;
     }
     
+    sleep(10); 
+    
     //Unmapeamos memoria y desvinculamos la región
     //munmap(region, 4096);
     //shm_unlink("Test");    

@@ -12,29 +12,25 @@ void *print_id(void *thread_id) {
     
     int id = *(int *)thread_id;
 
-    // Esperar a que el semáforo correspondiente esté disponible
-    if (id % 2 == 0) 
+    if (id == 10) 
     {
         sem_wait(&sem_even);
-    } else 
+        printf("%d\n", id);
+        sem_post(&sem_even);    
+        sem_post(&sem_odd);     // El último par da paso al primer impar
+    } 
+    else if (id % 2 == 0) 
+    {   
+        sem_wait(&sem_even);    // Esperar a que el semáforo correspondiente esté disponible
+        printf("%d\n", id);     // Imprimir el identificador
+        sem_post(&sem_even);    // Reactivar el semaforo
+    } 
+    else 
     {
         sem_wait(&sem_odd);
-    }
-
-    // Imprimir el identificador
-    printf("%d\n", id);
-    
-    // El último par da paso al primer impar
-    if (id == 10) sem_post(&sem_odd); 
-
-    // Liberar el semáforo correspondiente para el siguiente hilo
-    if (id % 2 == 0) {
-        sem_post(&sem_even);
-    } else {
+        printf("%d\n", 10-id);
         sem_post(&sem_odd);
-    }
-
-    
+    }      
 
     pthread_exit(NULL);
 }
@@ -51,7 +47,6 @@ int main()
     for (int i = 0; i < 10; i++) {
         ids[i] = i + 1;
         pthread_create(&th[i], NULL, print_id, (void *)&ids[i]);
-        usleep(1000);
     }
 
     // Esperar a que los hilos terminen
