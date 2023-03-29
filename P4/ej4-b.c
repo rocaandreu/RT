@@ -22,18 +22,16 @@ int main()
     int *number = &region[2];
     int *length = &region[3];
 
-
+    //sleep(1);
 
     for (int i = 0; i < *length; i++)
     {
-        while (*valid == 0);   
-        printf("%d\n", *number);
+        while (*valid == 0); 
+        printf("Number recieved (b) = %d\n", *number);
         *ready = 1;
         *valid = 0;     
-
     }
-    printf("%d\n", *ready);
-
+    
     //Unmapeamos memoria y desvinculamos la región
     munmap(region, 4096);
     shm_unlink("Test");
