@@ -28,6 +28,7 @@ int main()
     *valid = 0;
     *length = 20; 
 
+    //Protocolo
     for (int i = 0; i < *length; i++)
     {
         while (*ready == 0);

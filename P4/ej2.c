@@ -8,9 +8,9 @@ pthread_t filosofo[5];
 
 void *comer(void *i)
 {
-    long long id = (long long)i;
-    long long iz = id;
-    long long der = (id + 1) % 5;
+    int id = *(int *)i;
+    int iz = id;
+    int der = (id + 1) % 5;
     int tryL = 1;
     int tryR = 1;
 
@@ -46,8 +46,8 @@ void *comer(void *i)
 int main(int argc, char const *argv[])
 {
     //Create threads
-    for (long i = 0; i < 5; i++)
-        pthread_create(&filosofo[i], NULL, comer, (void*)i);
+    for (int i = 0; i < 5; i++)
+        pthread_create(&filosofo[i], NULL, comer, (void*)&i);
 
     //Wait for all threads to finish and then print results
     for (int i = 0; i < 5; i++)
