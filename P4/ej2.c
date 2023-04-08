@@ -8,7 +8,7 @@ pthread_t filosofo[5];
 
 void *comer(void *i)
 {
-    int id = *(int *)i;
+    int id = *(int *)i; //Pasamos "i" a un puntero tipo int e igulamos "id" a su contenido
     int iz = id;
     int der = (id + 1) % 5;
     int tryL = 1;
@@ -32,8 +32,6 @@ void *comer(void *i)
     {
         printf("Filósofo %d ha fallado 2 veces\n", id);
     }
-    
-    
     
 
     //Deja los tenedores

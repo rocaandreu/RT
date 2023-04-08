@@ -7,15 +7,14 @@ pthread_mutex_t tenedor[5];
 pthread_t filosofo[5];
 
 void *comer(void *i)
-{
-    int id = *(int *)i; //Pasamos el puntero void "i" a puntero integer e igualamos "id" a su contenido
+{   int id = *(int *)i; //Pasamos el puntero void "i" a puntero integer e igualamos "id" a su contenido
     int left = id;
     int right = (id + 1) % 5;
     int tryL = 1;
     int tryR = 1;
 
     //Conseguir dos tenedores
-    while (tryL == 0 && tryR == 0)
+    while (tryL != 0 || tryR != 0)
     {
         //Pedir los tenedores de la izquierda y derecha
         tryL = pthread_mutex_trylock(&tenedor[left]);
@@ -28,7 +27,7 @@ void *comer(void *i)
 
     //Filósofo comiendo
     usleep(10000);
-    printf("Filósofo %d esta comiendo\n", id);
+    printf("\nFilósofo %d esta comiendo\n", id);
     
     //Deja los tenedores
     pthread_mutex_unlock(&tenedor[left]);
