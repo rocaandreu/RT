@@ -1,28 +1,28 @@
-#define _XOPEN_SOURCE 700
+#define _XOPEN_SOURCE 600
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
 #include <sys/wait.h>
-#include "ej4.h"
+#include "AsciiToInteger.h"
 
 int msg_count = 0;
 
 void int_handler(int SIG_NUM, siginfo_t *info, void *context)
 {
-    printf("El proceso %d ha terminado\n", info->si_pid);
-    exit(0); 
+    printf("El proceso %d ha terminado\n", info->si_pid); 
 }
 
 
-int main(int argc, const char *argv[])
+int main(int argc, char *argv[])
 {
     //Handler
     struct sigaction hand;
     sigemptyset(&hand.sa_mask);
     hand.sa_flags = SA_SIGINFO; //Configuramos la señal para que nos de información de quién la ha mandado
     hand.sa_sigaction = int_handler; //No podemos usar sa_sighandler porque requerimos más detalles que sólo el tipo de señal    sigaction(SIGUSR1, &hand, NULL);
+    sigaction(SIGUSR1, &hand, NULL);
 
 
     //Creación hijos
@@ -33,23 +33,22 @@ int main(int argc, const char *argv[])
     for (int i = 0; i < n_process; i++)
     {
         SonPID = fork();
+        if (SonPID == 0) break;
     }
 
-    if (SonPID == 0) //Proceso hijo
+    //Procesos
+    if (SonPID == 0)
     {
-        //Recibiendo SIGUSR1 y SIGUSR2
+        //Mandamos SIGUSR1 al proceso padre
         kill(getppid(), SIGUSR1);
-        return 0;
+        exit(0);
     }
-    else //Proceso principal
+    else
     {
-        pause();
-   
-        //Esperamos a que terminen todos los procesos hijo
-        wait(NULL);
-
+        //Esperamos a que algun proceso acabe
+        wait(NULL);    
         return 0;
-    }
+    }            
 }
 
 
@@ -58,7 +57,7 @@ int AsciiToInteger(char *sr1){
    for (i = length-1; i >= 0; i--)
    {
       if (sr1[i] < '0' || sr1[i] > '9')
-         return 0;
+         return -1;
 
       res += (sr1[i]-'0')*digit;
       digit *= 10;
