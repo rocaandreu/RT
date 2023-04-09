@@ -9,6 +9,19 @@
 
 int msg_count = 0;
 
+int AsciiToInteger(char *sr1){
+   int i, res = 0, digit = 1, length = strlen(sr1);
+   for (i = length-1; i >= 0; i--)
+   {
+      if (sr1[i] < '0' || sr1[i] > '9')
+         return -1;
+
+      res += (sr1[i]-'0')*digit;
+      digit *= 10;
+   }
+   return res;
+}
+
 void int_handler(int SIG_NUM, siginfo_t *info, void *context)
 {
     printf("El proceso %d ha terminado\n", info->si_pid); 
@@ -52,15 +65,3 @@ int main(int argc, char *argv[])
 }
 
 
-int AsciiToInteger(char *sr1){
-   int i, res = 0, digit = 1, length = strlen(sr1);
-   for (i = length-1; i >= 0; i--)
-   {
-      if (sr1[i] < '0' || sr1[i] > '9')
-         return -1;
-
-      res += (sr1[i]-'0')*digit;
-      digit *= 10;
-   }
-   return res;
-}

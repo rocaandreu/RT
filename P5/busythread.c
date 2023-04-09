@@ -6,21 +6,42 @@
 #include <sys/time.h>
 #include <string.h>
 #include "AsciiToInteger.h"
+#include <pthread.h>
 
+const int Nthreads = 9;
+void *threadwait(void* tme)
+{   
+    long long t = (long long)tme;
+    
+    usleep(t);
+    
+    pthread_exit(NULL);
+}
 
 int main(int argc, char *argv[])
 {
-    struct timeval start, end;
-    gettimeofday(&start, NULL);
-    long int diff = 0;
     int time = AsciiToInteger(argv[1]);
+    long long timelonged = (long long)time;
     if (argc != 2 || time < 0) return EXIT_FAILURE;
-    usleep(time);
-
+    pthread_t thr[Nthreads];
+    struct timeval start, end;
+    long int diff = 0;
+    gettimeofday(&start, NULL);
+    
+    for (int i = 0; i < Nthreads; i++)
+    {
+        pthread_create(&thr[i], NULL, threadwait, (void *) timelonged);
+    }
+    for (int i = 0; i < Nthreads; i++)
+    {
+        pthread_join(thr[i], NULL);
+    }
     gettimeofday(&end, NULL);
-    diff = (end.tv_usec-start.tv_usec) - time;
+    diff = (end.tv_usec-start.tv_usec) - timelonged;
     printf("Real wait time: %ld usec\n", end.tv_usec-start.tv_usec);
     printf("Difference: %ld usec\n", diff);
+
+    
     return 0;
 }
 

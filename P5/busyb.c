@@ -10,13 +10,15 @@
 
 int main(int argc, char *argv[])
 {
-    struct timeval start, end;
+    struct timeval start, end, current;
     gettimeofday(&start, NULL);
     long int diff = 0;
     int time = AsciiToInteger(argv[1]);
     if (argc != 2 || time < 0) return EXIT_FAILURE;
-    usleep(time);
-
+    while((current.tv_usec - start.tv_usec) < time)
+    {
+        gettimeofday(&current, NULL);
+    }
     gettimeofday(&end, NULL);
     diff = (end.tv_usec-start.tv_usec) - time;
     printf("Real wait time: %ld usec\n", end.tv_usec-start.tv_usec);
