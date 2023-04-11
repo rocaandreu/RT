@@ -8,17 +8,17 @@
 
 int main(int argc, char const *argv[])
 {
-    //Creamos un pipe con nombre "com_pipe" y con permisos de escritura y lectura para el propietario
-    mkfifo("com_pipe", S_IRUSR|S_IWUSR); 
-
-    //Abrimos el pipe creado anteriormente en nuestro programa (asignándole un FD) y le damos permiso de escritura y lectura
+    //Creamos named pipe
+    mkfifo("com_pipe", 0666); 
     int pipefd = open("com_pipe", O_WRONLY);
 
-    //Enviamos los números
+    //Enviamos los números y mensaje al final
     for (int i = 0; i < 10; i++)
     {
         write(pipefd, &i, sizeof(int));
     }
+
+    if(argc == 2) write(pipefd, argv[1], strlen(argv[1]));
     
     //Cerramos el archivo y lo desvinculamos del programa
     close(pipefd);  
