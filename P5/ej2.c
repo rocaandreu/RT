@@ -34,7 +34,7 @@ int main(int argc, char const *argv[])
     //Indicamos qué handler usamos
     hand.sa_handler = int_handler;
     
-    //Ejecutar int_handler cuando ese reciva SIGINT
+    //Ejecutar int_handler cuando ese reciva SIGUSR o SIGUSR2
     sigaction(SIGUSR1, &hand, NULL); 
     sigaction(SIGUSR2, &hand, NULL); 
 

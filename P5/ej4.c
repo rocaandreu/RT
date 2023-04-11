@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     struct sigaction hand;
     sigemptyset(&hand.sa_mask);
     hand.sa_flags = SA_SIGINFO; //Configuramos la señal para que nos de información de quién la ha mandado
-    hand.sa_sigaction = int_handler; //No podemos usar sa_sighandler porque requerimos más detalles que sólo el tipo de señal    sigaction(SIGUSR1, &hand, NULL);
+    hand.sa_sigaction = int_handler; //No podemos usar sa_sighandler porque requerimos más detalles que sólo el tipo de señal
     sigaction(SIGUSR1, &hand, NULL);
 
 
@@ -63,5 +63,3 @@ int main(int argc, char *argv[])
         return 0;
     }            
 }
-
-
