@@ -1,7 +1,7 @@
 # RT :D
 Repositori amb les pràctiques de laboratori de RT (3B GREELEC UPC)
 
-NOTA: Tot el codi s'ha fet per aprendre i a mode de demostració, és a dir que no s'ha tingut en compte cap mena de control d'errors, si us plau que ningú ho copi per fer-ho servir en una situació real sense modificar-lo apropiadament.
+NOTA: Tot el codi s'ha fet per aprendre i a mode de demostració, és a dir que no s'ha tingut en compte cap mena de control d'errors, si us plau que ningú ho copiï per fer-ho servir en una situació real sense modificar-lo apropiadament.
 
 ===================================================================
 
