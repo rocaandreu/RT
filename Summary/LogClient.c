@@ -10,8 +10,6 @@
 #include <fcntl.h>
 #include "Log.h"
 
-#define SERVER_IP "127.0.0.1"
-
 int main(int argc, char const *argv[])
 {
     //Creamos socket para este proceso (cliente)
@@ -24,28 +22,83 @@ int main(int argc, char const *argv[])
     server_addr.sin_addr.s_addr = inet_addr(SERVER_IP);
 
     //Conectamos con el servidor
-    int connect_ret = connect(client_sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr));
-    printf("connect_ret = %d\n", connect_ret);
+    int serverfd = connect(client_sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr));
+    printf("connect_ret = %d\n", serverfd);
     
     
     //MAIN LOOP
     int i;
-    char *msg_buf;
-    char read_buf[1];
-    read(1, &read_buf, sizeof(read_buf));
+    char buf;
     while (1)
     {
         i = 0;
-        while (read_buf != '\n')
+        struct msg msg; 
+
+        //Leemos hasta Max_data length o hasta salto de línea
+        while (i < MAX_DATA_LENGTH && buf != '\n')
         {
-            msg_buf[i] = read_buf;
+            read(1, &buf, sizeof(buf));
+            msg.data[i] = buf;
             i++;
         }
+
+        //Definimos el tipo de mensaje en función de si hay salto de línea o no
+        if (i == MAX_DATA_LENGTH)
+        {
+            msg.message_type = UNF_MSG_T;
+            msg.data_length = MAX_DATA_LENGTH;
+            msg.message_length = MAX_MSG_LENGTH;
+            send_msg(serverfd, msg);
+        }
+        else
+        {
+            msg.message_type = F_MSG_T;
+        }
+        
+        
+        //CREAR UN SIGHAND para SIGKILL que envíe un mensage de terminar conexión antes de 
     }
     
-   
     
 
+
     close(client_sockfd);
+    return 0;
+}
+
+
+
+int send_msg(int fd, struct msg msg)
+{
+    int res = 0, ret_wr = 0;
+    char buf[MAX_MSG_LENGTH];
+
+    //Enviamos la cabecera del mensaje
+    if (msg.message_type == CON_MSG_T)
+    {
+        //Los enteros deben codificarse con %4d para que cuadre el message_length con la longitud del string que enviamos
+        sprintf(&buf, "%4d%4d%4d", msg.message_length, msg.message_type, msg.PID);
+        ret_wr = write(fd, &buf, msg.message_length);
+        return ret_wr;
+    }
+    else if (msg.message_type == F_MSG_T || msg.message_type == UNF_MSG_T)
+    {
+        sprintf(&buf, "%4d%4d%4d%s", msg.message_length, msg.message_type, msg.data_length, msg.data);
+        ret_wr = write(fd, &buf, msg.message_length);
+        return ret_wr;
+    }
+    
+    
+
+    //Enviamos longitud datos
+    ret_wr = write(fd, msg.data_length, sizeof(int));
+    if (ret_wr < 0) return -1;
+    res += ret_wr;
+
+    //Enviamos datos
+    ret_wr = write(fd, msg.data, strlen(msg.data));
+    if (ret_wr < 0) return -1;
+    res += ret_wr;
+
     return 0;
 }
