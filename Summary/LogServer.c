@@ -25,6 +25,8 @@ int main(int argc, char const *argv[])
     char *logfile_name;
     int port = atoi(argv[2]);
     pthread_t th;
+
+    //Abrimos logfile si existe y lo borramos, si no existe lo creamos nuevo
     strcpy(logfile_name, argv[1]);
     if (access(logfile_name, F_OK) == 0)    
     {
