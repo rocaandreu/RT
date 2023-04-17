@@ -47,6 +47,7 @@ int main(int argc, char const *argv[])
  
     //Conectamos con el servidor y enviamos mensaje de conexión
     serverfd = connect(client_sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr));
+    if (serverfd < 0) perror("Error: Connection to server failed\n");
     printf("connect_ret = %d\n", serverfd);
 
     struct msg msg;
