@@ -6,12 +6,10 @@
 #define MAX_MSG_LENGTH 4096-3*sizeof(int)
 #define MAX_DATA_LENGTH 4096-3*sizeof(int)
 
-#define CON_MSG_T 0
-#define F_MSG_T 1
-#define UNF_MSG_T 2
-#define END_MSG_T 3
-
-int send_msg(int fd, struct msg_data msg);
+#define START_MSG 0
+#define DATA_MSG 1
+#define UNF_DATA_MSG 2
+#define END_MSG 3
 
 struct msg_con
 {
