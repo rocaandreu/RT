@@ -13,11 +13,45 @@
 
 #define SERVER_IP "127.0.0.1"
 
-void *handler(void *i){
-    
-    
-    
-    //pthreadexit
+void *handler(void *client_sockfd)
+{
+    char buf[MAX_MSG_LENGTH];
+    struct msg msg;
+
+    while (1)
+    {
+        //Leemos longitud del mensaje
+        read(client_sockfd, &buf, sizeof(int)); 
+        msg.message_length = atoi(&buf);
+
+        //Leemos tipo del mensaje 
+        read(client_sockfd, &buf, sizeof(int));
+        msg.message_type = atoi(&buf);
+
+        //Leemos lo que queda del mensaje en función del tipo
+        if (msg.message_type == START_MSG)
+        {
+            read(client_sockfd, buf, msg.message_length - 2*sizeof(int)); 
+            msg.PID = atoi(&buf);
+        }
+        else if (msg.message_type == DATA_MSG)
+        {
+            read(client_sockfd, &buf, sizeof(int)); //Leemos data_lenght
+            msg.data_length = atoi(&buf);
+
+            read(client_sockfd, &buf, msg.data_length); //Leemos data
+            strcpy(&msg.data, &buf);
+        } 
+        else if (msg.message_type == UNF_DATA_MSG)
+        {
+            
+        }
+        else if (msg.message_type == END_MSG)
+        {
+            
+        }
+    }
+    pthread_exit(NULL);
 }
 int main(int argc, char const *argv[])
 {
@@ -59,14 +93,11 @@ int main(int argc, char const *argv[])
     while (1)
     {
         int client_sockfd = accept(server_sockfd, NULL, NULL);
-        pthread_create(&th, NULL, handler, NULL);//Aun no se lo que tengo que pasarle al handler, lo dejo en NULL pero OJO
-
+        pthread_create(&th, NULL, handler, (void *)client_sockfd);//Aun no se lo que tengo que pasarle al handler, lo dejo en NULL pero OJO
     }
     
 
 
     close(logfd);
     return 0;
-
-
 }
