@@ -74,6 +74,8 @@ int main(int argc, char const *argv[])
             read(1, &buf, sizeof(buf));
             msg.data[msg.data_length] = buf;
             msg.data_length++;
+            printf("\n");
+            printf(msg.data);
         }
 
         //Definimos el tipo de mensaje en función de si hay salto de línea o no

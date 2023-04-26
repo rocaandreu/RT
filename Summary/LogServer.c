@@ -58,6 +58,8 @@ void *handler(void *fd)
             strcpy(msg.data, rd_buf);
             strcat(data_buf, rd_buf);
 
+            write(1, data_buf, sizeof(data_buf));
+
             //Escribimos data_buf al logfile (databuf incluye este mensaje y todos los tipo FULL anteriores)
             pthread_mutex_lock(&logfile_mutex);
             write(logfd, PID_buf, strlen(PID_buf));
@@ -104,8 +106,8 @@ int main(int argc, char const *argv[])
     strcpy(logfile_name, argv[1]);
     if (access(logfile_name, F_OK) == 0)    
     {
-        logfd = open(logfile_name, O_RDWR);
-        while (read(logfd, NULL, 128) < 0); //vamos leyendo en bloques de 128, hasta EOF jiji
+        logfd = open(logfile_name, O_RDWR | O_TRUNC);
+         //vamos leyendo en bloques de 128, hasta EOF jiji
     }
     else
     {
@@ -140,6 +142,7 @@ int main(int argc, char const *argv[])
         pthread_create(&th, NULL, handler, (void *) &client_sockfd);//Aun no se lo que tengo que pasarle al handler, lo dejo en NULL pero OJO
     }
     
+    close(server_sockfd);
     close(logfd);
     return 0;
 }
