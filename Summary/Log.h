@@ -8,7 +8,7 @@
 
 #define START_MSG 0
 #define DATA_MSG 1
-#define UNF_DATA_MSG 2
+#define FULL_DATA_MSG 2
 #define END_MSG 3
 
 struct msg

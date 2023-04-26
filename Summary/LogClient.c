@@ -13,14 +13,15 @@
 #include <signal.h>
 #include <unistd.h>
 
-int serverfd = 1;
+int client_sockfd;
 
 void int_handler(int SIG_NUM)
 {
     struct msg END;    
     END.message_type = END_MSG;
     END.message_length = 2*sizeof(int);
-    send_msg(serverfd, END);
+    send_msg(client_sockfd, END);
+    close(client_sockfd);
     printf("\nDisconnected from server\n");
     exit(0); 
 }
@@ -28,6 +29,8 @@ void int_handler(int SIG_NUM)
 
 int main(int argc, char const *argv[])
 {
+    printf(argv[1]);
+
     //Nuevo handle SIGKILL para enviar mensaje de desconexión
     struct sigaction hand;
     sigemptyset(&hand.sa_mask);
@@ -36,7 +39,7 @@ int main(int argc, char const *argv[])
     sigaction(SIGINT, &hand, NULL);
 
     //Creamos socket para este proceso (cliente)
-    int client_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    client_sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
     //Creamos el objeto de la address y puerto del servidor al que nos vamos a conectar (port = 1er param)
     if (argc < 2) perror("Error: Missing argument: PORT_NUMBER\n");
@@ -46,15 +49,15 @@ int main(int argc, char const *argv[])
     server_addr.sin_addr.s_addr = inet_addr(SERVER_IP);
  
     //Conectamos con el servidor y enviamos mensaje de conexión
-    serverfd = connect(client_sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr));
-    if (serverfd < 0) perror("Error: Connection to server failed\n");
-    printf("connect_ret = %d\n", serverfd);
+    int connect_ret = connect(client_sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr));
+    if (connect_ret < 0) perror("Error: Connection to server failed\n");
+    printf("connect_ret = %d\n", connect_ret);
 
     struct msg msg;
     msg.message_type = START_MSG;
     msg.message_length = 3*sizeof(int);
     msg.PID = getpid();
-    send_msg(serverfd, msg);
+    send_msg(client_sockfd, msg);
     
     //MAIN LOOP
     char buf;
@@ -76,15 +79,15 @@ int main(int argc, char const *argv[])
         //Definimos el tipo de mensaje en función de si hay salto de línea o no
         if (msg.data_length == MAX_DATA_LENGTH)
         {
-            msg.message_type = UNF_DATA_MSG;
+            msg.message_type = FULL_DATA_MSG;
             msg.message_length = MAX_MSG_LENGTH;
-            send_msg(serverfd, msg);
+            send_msg(client_sockfd, msg);
         }
         else
         {
             msg.message_type = DATA_MSG;
             msg.message_length = msg.data_length + 2*sizeof(int);
-            send_msg(serverfd, msg);
+            send_msg(client_sockfd, msg);
         }
     }
 
@@ -106,7 +109,7 @@ int send_msg(int fd, struct msg msg)
         ret_wr = write(fd, &buf, msg.message_length);
         return ret_wr;
     }
-    else if (msg.message_type == DATA_MSG || msg.message_type == UNF_DATA_MSG)
+    else if (msg.message_type == DATA_MSG || msg.message_type == FULL_DATA_MSG)
     {
         sprintf(buf, "%4d%4d%4d%s", msg.message_length, msg.message_type, msg.data_length, msg.data);
         ret_wr = write(fd, &buf, msg.message_length);
