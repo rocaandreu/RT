@@ -23,28 +23,32 @@ void *handler(void *fd)
     int client_sockfd = *(int *)fd;
     struct msg msg;
     char *data_buf = malloc(sizeof(char)*MAX_DATA_LENGTH); //Buffer dinámico para los datos
-    char rd_buf[MAX_DATA_LENGTH];
+    //char rd_buf[MAX_DATA_LENGTH];
+    char rd_buf[MAX_MSG_LENGTH];
     char PID_buf[11]; //Enough to write "PID 32768: " (largest possible PID number)
 
     while (1)
     {
-        strcpy(rd_buf, "");
+        memset(rd_buf, 0, sizeof(rd_buf));//borramos el buffer
+
         //Leemos longitud del mensaje
-        read(client_sockfd, rd_buf, sizeof(int));
+        read(client_sockfd, rd_buf, 4);
         printf("lo primero que leo; %s\n", rd_buf); 
         msg.message_length = atoi(rd_buf);
 
         //Leemos tipo del mensaje 
-        read(client_sockfd, rd_buf, sizeof(int));
+        read(client_sockfd, rd_buf, 4);
         msg.message_type = atoi(rd_buf);
+        memset(rd_buf, 0, sizeof(rd_buf));
 
         //Leemos lo que queda del mensaje en función del tipo
         if (msg.message_type == START_MSG)
         {
-            read(client_sockfd, rd_buf, msg.message_length - 2*sizeof(int)); 
+            read(client_sockfd, rd_buf, msg.message_length - 8); 
             msg.PID = atoi(rd_buf);
             sprintf(PID_buf, "PID %d: ", msg.PID);
-            
+            printf("cliente: %d\n", client_sockfd);
+
             pthread_mutex_lock(&logfile_mutex);
             write(logfd, PID_buf, strlen(PID_buf));
             write(logfd, "Connection Started\n", 20);
@@ -53,14 +57,14 @@ void *handler(void *fd)
         else if (msg.message_type == DATA_MSG)
         {
             //Leemos data_lenght
-            read(client_sockfd, rd_buf, sizeof(int)); 
+            read(client_sockfd, rd_buf, 4); 
             msg.data_length = atoi(rd_buf);
+            memset(rd_buf, 0, sizeof(rd_buf));
 
             //Leemos data y la añadimos al buffer
             read(client_sockfd, rd_buf, msg.data_length); 
             strcpy(msg.data, rd_buf);
             strcat(data_buf, rd_buf);
-
 
             //Escribimos data_buf al logfile (databuf incluye este mensaje y todos los tipo FULL anteriores)
             pthread_mutex_lock(&logfile_mutex);
@@ -68,25 +72,29 @@ void *handler(void *fd)
             write(logfd, data_buf, strlen(data_buf));
             pthread_mutex_unlock(&logfile_mutex);
             
-            //Vaciamos data_buf
             i = 1;
-            strcpy(data_buf, "");
-            data_buf = (char*) realloc(data_buf, MAX_DATA_LENGTH*i);
+            //free((void *)data_buf);
+            data_buf = (char*) realloc((void*)data_buf, sizeof(char)*MAX_DATA_LENGTH*i);
+            //Vaciamos data_buf
+            memset(data_buf, 0, sizeof(data_buf));
         } 
         else if (msg.message_type == FULL_DATA_MSG)
         {
             //Leemos data_lenght
-            read(client_sockfd, rd_buf, sizeof(int)); 
+            read(client_sockfd, rd_buf, 4); 
             msg.data_length = atoi(rd_buf);
-
+            memset(rd_buf, 0, sizeof(rd_buf));
+            
             //Leemos data
             read(client_sockfd, rd_buf, msg.data_length);
             strcpy(msg.data, rd_buf);
-
+            
             //Añadimos nueva data al buffer
             i++;
+            printf("\nsoy la vez n: %d\n",i);
             strcat(data_buf, rd_buf);
-            data_buf = (char*) realloc(data_buf, MAX_DATA_LENGTH*i);
+            memset(rd_buf, 0, sizeof(rd_buf));
+            data_buf = (char*) realloc((void*)data_buf, sizeof(char)*MAX_DATA_LENGTH*i);
         }
         else if (msg.message_type == END_MSG)
         {
@@ -114,8 +122,7 @@ int main(int argc, char const *argv[])
     if (access(logfile_name, F_OK) == 0)    
     {   
         logfd = open(logfile_name, O_RDWR | O_TRUNC);
-         //vamos leyendo en bloques de 128, hasta EOF jiji
-    }
+    }   
     else
     {   
         logfd = open(logfile_name, O_WRONLY|O_CREAT);
@@ -124,6 +131,7 @@ int main(int argc, char const *argv[])
 
     //Creamos el socket
     int server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
     //Creamos un adress para asignar posteriormente
     struct sockaddr_in server_addr;
     server_addr.sin_family = AF_INET; 
@@ -135,9 +143,9 @@ int main(int argc, char const *argv[])
     if (bind_ret < 0) return EXIT_FAILURE;
     printf("bind_ret = %d\n", bind_ret);
 
-    //esperamos a que se establezca conexión
+    //Esperamos a que se establezca conexión
     listen(server_sockfd, 5); //preguntar
-    //se establece la conexión, al poner NULL en el segundo parámetro, no especificamos un adress específico
+    //Se establece la conexión, al poner NULL en el segundo parámetro, no especificamos un adress específico
     //al que conectarnos, nos conectaremos a todos los que soliciten conexión
 
     int client_sockfd;
@@ -145,7 +153,7 @@ int main(int argc, char const *argv[])
     {
         printf("accept working\n");
         client_sockfd = accept(server_sockfd, NULL, NULL);
-        pthread_create(&th, NULL, handler, (void *) &client_sockfd);//Aun no se lo que tengo que pasarle al handler, lo dejo en NULL pero OJO
+        pthread_create(&th, NULL, handler, (void *) &client_sockfd);
     }
     
     close(server_sockfd);
