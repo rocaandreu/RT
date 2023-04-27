@@ -1,3 +1,4 @@
+#define _XOPEN_SOURCE 600
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -27,8 +28,10 @@ void *handler(void *fd)
 
     while (1)
     {
+        strcpy(rd_buf, "");
         //Leemos longitud del mensaje
-        read(client_sockfd, rd_buf, sizeof(int)); 
+        read(client_sockfd, rd_buf, sizeof(int));
+        printf("lo primero que leo; %s\n", rd_buf); 
         msg.message_length = atoi(rd_buf);
 
         //Leemos tipo del mensaje 
@@ -58,14 +61,13 @@ void *handler(void *fd)
             strcpy(msg.data, rd_buf);
             strcat(data_buf, rd_buf);
 
-            write(1, data_buf, sizeof(data_buf));
 
             //Escribimos data_buf al logfile (databuf incluye este mensaje y todos los tipo FULL anteriores)
             pthread_mutex_lock(&logfile_mutex);
             write(logfd, PID_buf, strlen(PID_buf));
-            write(logfd, data_buf, sizeof(*data_buf));
+            write(logfd, data_buf, strlen(data_buf));
             pthread_mutex_unlock(&logfile_mutex);
-
+            
             //Vaciamos data_buf
             i = 1;
             strcpy(data_buf, "");
@@ -88,6 +90,10 @@ void *handler(void *fd)
         }
         else if (msg.message_type == END_MSG)
         {
+            pthread_mutex_lock(&logfile_mutex);
+            write(logfd, PID_buf, strlen(PID_buf));
+            write(logfd, "Connection Ended\n", 18);
+            pthread_mutex_unlock(&logfile_mutex);
             close(client_sockfd);
             pthread_exit(NULL);
         }
@@ -98,26 +104,26 @@ void *handler(void *fd)
 
 int main(int argc, char const *argv[])
 {
-    char *logfile_name;
+    char logfile_name[strlen(argv[1])];
     int port = atoi(argv[2]);
     pthread_t th;
-
+    
     //Abrimos logfile si existe y lo borramos, si no existe lo creamos nuevo
     strcpy(logfile_name, argv[1]);
+    
     if (access(logfile_name, F_OK) == 0)    
-    {
+    {   
         logfd = open(logfile_name, O_RDWR | O_TRUNC);
          //vamos leyendo en bloques de 128, hasta EOF jiji
     }
     else
-    {
+    {   
         logfd = open(logfile_name, O_WRONLY|O_CREAT);
         if (logfd < 0) perror("Error creating file\n");
     }
 
     //Creamos el socket
     int server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
     //Creamos un adress para asignar posteriormente
     struct sockaddr_in server_addr;
     server_addr.sin_family = AF_INET; 

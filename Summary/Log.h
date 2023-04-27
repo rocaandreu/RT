@@ -3,7 +3,7 @@
 
 #define N_CLIENTS 10
 #define SERVER_IP "127.0.0.1"
-#define MAX_MSG_LENGTH 4096-3*sizeof(int)
+#define MAX_MSG_LENGTH 4096
 #define MAX_DATA_LENGTH 4096-3*sizeof(int)
 
 #define START_MSG 0

@@ -29,7 +29,6 @@ void int_handler(int SIG_NUM)
 
 int main(int argc, char const *argv[])
 {
-    printf(argv[1]);
 
     //Nuevo handle SIGKILL para enviar mensaje de desconexión
     struct sigaction hand;
@@ -60,24 +59,24 @@ int main(int argc, char const *argv[])
     send_msg(client_sockfd, msg);
     
     //MAIN LOOP
-    char buf;
+    char buf[MAX_DATA_LENGTH];
     while (1)
     {
-        buf = '\0';
+        strcpy(buf, "");
         msg.message_length = 0;
         msg.data_length = 0;
         msg.message_type = DATA_MSG;
         
         //Leemos hasta Max_data length o hasta salto de línea
-        while (msg.data_length < MAX_DATA_LENGTH && buf != '\n')
+        /*while (msg.data_length < MAX_DATA_LENGTH && buf != '\n')
         {
             read(1, &buf, sizeof(buf));
             msg.data[msg.data_length] = buf;
             msg.data_length++;
-            printf("\n");
-            printf(msg.data);
-        }
+        }*/
 
+        msg.data_length = read(1, &buf, MAX_DATA_LENGTH);
+        strcpy(msg.data, buf);
         //Definimos el tipo de mensaje en función de si hay salto de línea o no
         if (msg.data_length == MAX_DATA_LENGTH)
         {
@@ -115,6 +114,7 @@ int send_msg(int fd, struct msg msg)
     {
         sprintf(buf, "%4d%4d%4d%s", msg.message_length, msg.message_type, msg.data_length, msg.data);
         ret_wr = write(fd, &buf, msg.message_length);
+        printf("%s", buf);
         return ret_wr;
     }
     else if (msg.message_type == END_MSG)
