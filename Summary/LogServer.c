@@ -22,7 +22,7 @@ void *handler(void *fd)
     int i = 1;
     int client_sockfd = *(int *)fd;
     struct msg msg;
-    char *data_buf = malloc(sizeof(char)*MAX_DATA_LENGTH); //Buffer dinámico para los datos
+    char *data_buf = calloc(MAX_DATA_LENGTH, sizeof(char)); //Buffer dinámico para los datos
     //char rd_buf[MAX_DATA_LENGTH];
     char rd_buf[MAX_MSG_LENGTH];
     char PID_buf[11]; //Enough to write "PID 32768: " (largest possible PID number)
@@ -33,7 +33,6 @@ void *handler(void *fd)
 
         //Leemos longitud del mensaje
         read(client_sockfd, rd_buf, 4);
-        printf("lo primero que leo; %s\n", rd_buf); 
         msg.message_length = atoi(rd_buf);
 
         //Leemos tipo del mensaje 
@@ -66,6 +65,8 @@ void *handler(void *fd)
             strcpy(msg.data, rd_buf);
             strcat(data_buf, rd_buf);
 
+            printf("\n data_buf = \"%s\"\n", data_buf);
+
             //Escribimos data_buf al logfile (databuf incluye este mensaje y todos los tipo FULL anteriores)
             pthread_mutex_lock(&logfile_mutex);
             write(logfd, PID_buf, strlen(PID_buf));
@@ -74,8 +75,8 @@ void *handler(void *fd)
             
             i = 1;
             //free((void *)data_buf);
-            data_buf = (char*) realloc((void*)data_buf, sizeof(char)*MAX_DATA_LENGTH*i);
-            //Vaciamos data_buf
+            char *tmp1 = realloc(data_buf, MAX_DATA_LENGTH*i);
+            data_buf = tmp1;
             memset(data_buf, 0, sizeof(data_buf));
         } 
         else if (msg.message_type == FULL_DATA_MSG)
@@ -91,10 +92,11 @@ void *handler(void *fd)
             
             //Añadimos nueva data al buffer
             i++;
-            printf("\nsoy la vez n: %d\n",i);
             strcat(data_buf, rd_buf);
             memset(rd_buf, 0, sizeof(rd_buf));
-            data_buf = (char*) realloc((void*)data_buf, sizeof(char)*MAX_DATA_LENGTH*i);
+            char *tmp = realloc(data_buf, MAX_DATA_LENGTH*i);
+            data_buf = tmp;
+            printf("\n data_buf = \"%s\"\n", data_buf);        
         }
         else if (msg.message_type == END_MSG)
         {
@@ -102,6 +104,9 @@ void *handler(void *fd)
             write(logfd, PID_buf, strlen(PID_buf));
             write(logfd, "Connection Ended\n", 18);
             pthread_mutex_unlock(&logfile_mutex);
+
+            //Liberamos data_buffer y cerramos socket
+            free(data_buf);
             close(client_sockfd);
             pthread_exit(NULL);
         }

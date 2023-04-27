@@ -109,7 +109,7 @@ int send_msg(int fd, struct msg msg)
     {
         sprintf(bufi, "%4d%4d%4d%s", msg.message_length, msg.message_type, msg.data_length, msg.data);
         ret_wr = write(fd, &bufi, msg.message_length);
-        printf("%s", bufi);
+        printf("\nNEW MESSAGE = \"%s\"\n", bufi);
         return ret_wr;
     }
     else if (msg.message_type == END_MSG)
