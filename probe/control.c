@@ -6,5 +6,6 @@
 
 int init_tasks()
 {
+    int main();
     return 0;
 }

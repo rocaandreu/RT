@@ -15,6 +15,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-int init_sensors();
+int init_sensors(); //0 if success, -1 if error
+static int connect_socket(int port, int *fd); //0 if success, -1 if error
 
 #endif

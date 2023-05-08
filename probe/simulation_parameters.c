@@ -1,6 +1,7 @@
 #include "simulation_parameters.h"
 
-unsigned long long interval=1000; // Interrupt interval in microseconds
+
+unsigned long long interval = 1000; // Interrupt interval in microseconds
 
 int disable_crash_detection = 1;  // If 1, disable crash detection
 
