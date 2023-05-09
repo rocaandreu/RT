@@ -95,19 +95,6 @@ void task_update_speed_accel(void *param) //Reading period is 300ms
             }
             check_half[i] = 1;
         }
-        else if (fabs(pos[i]) <= 1)
-        {
-            if (actuator_state[2*i] == 1)
-            {
-                activate_actuators(actuators_fd[2*i], "stop");
-                actuator_state[2*i] = 0;
-            }
-            else if (actuator_state[2*i + 1] == 1)
-            {
-                activate_actuators(actuators_fd[2*i + 1], "stop");
-                actuator_state[2*i + 1] = 0;
-            }
-        } 
     }
     return;
 }
