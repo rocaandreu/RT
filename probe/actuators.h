@@ -16,5 +16,6 @@
 #include <unistd.h>
 
 int init_actuators();
+int activate_actuators(int fd, char *action);
 
 #endif

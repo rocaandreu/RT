@@ -17,5 +17,6 @@
 
 int init_sensors(); //0 if success, -1 if error
 static int connect_socket(int port, int *fd); //0 if success, -1 if error
+int read_sock_active_float(int fd, float *value);
 
 #endif

@@ -3,14 +3,14 @@
 
 unsigned long long interval = 1000; // Interrupt interval in microseconds
 
-int disable_crash_detection = 1;  // If 1, disable crash detection
+int disable_crash_detection = 0;  // If 1, disable crash detection
 
 float pump_acceleration = 0.2f;  // Acceleration of a pump
 int pump_actuator_delay = 50;     // Delay of the pump actuator in miliseconds
 
 // Luke position in space
-float luke_pos_x = -1000.0f;
-float luke_pos_y = -1000.0f;
+float luke_pos_x = -130.0f;
+float luke_pos_y = -50.0f;
 float luke_pos_z = 0.0f;
 
 // Luke speed

@@ -1,5 +1,7 @@
 #include "sensors.h"
 
+int sensors_fd[3];
+
 static int connect_socket(int port, int *fd)
 {
     struct sockaddr_in serv_addr;
@@ -32,13 +34,17 @@ static int connect_socket(int port, int *fd)
     return 0;
 }
 
+int read_sock_active_float(int fd, float *value)
+{
+    read(fd, value, sizeof(float));
+    return 0;
+}
+
 int init_sensors()
 {
-    int sensors_fd[3];
     if (connect_socket(20015, &sensors_fd[0]) < 0) return -1; //X axis
     if (connect_socket(20016, &sensors_fd[1]) < 0) return -2; //Y axis
     if (connect_socket(20017, &sensors_fd[2]) < 0) return -3; //Z axis
-    printf("Connection to all sensors was successful: fd_X = %d, fd_Y = %d, fd_Z = %d\n", sensors_fd[0], sensors_fd[1], sensors_fd[2]);
 
     return 0;
 }

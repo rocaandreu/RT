@@ -1,5 +1,7 @@
 #include "actuators.h"
 
+int actuators_fd[6];
+
 static int connect_socket(int port, int *fd)
 {
     struct sockaddr_in serv_addr;
@@ -32,18 +34,26 @@ static int connect_socket(int port, int *fd)
     return 0;
 }
 
+
+int activate_actuators(int fd, char *action)
+{
+    int length = strlen(action)+1;
+    send(fd, (char*)&length, sizeof(int), 0);
+    send(fd, action, length, 0);
+    return 0;
+}
+
+
 int init_actuators()
 {
-    int actuators_fd[6];
+    if (connect_socket(20000, &actuators_fd[3]) < 0) return -1; //Pump N (Y+)
+    if (connect_socket(20001, &actuators_fd[2]) < 0) return -1; //Pump S (Y-)
+    
+    if (connect_socket(20002, &actuators_fd[0]) < 0) return -1; //Pump E (X+)
+    if (connect_socket(20003, &actuators_fd[1]) < 0) return -1; //Pump W (X-)
 
-    if (connect_socket(20000, &actuators_fd[0]) < 0) return -1; //Pump N
-    if (connect_socket(20001, &actuators_fd[1]) < 0) return -2; //Pump S
-    if (connect_socket(20002, &actuators_fd[2]) < 0) return -3; //Pump E
-    if (connect_socket(20003, &actuators_fd[3]) < 0) return -4; //Pump W
-    if (connect_socket(20004, &actuators_fd[4]) < 0) return -5; //Pump UP
-    if (connect_socket(20005, &actuators_fd[5]) < 0) return -5; //Pump DOWN
-
-    printf("Connection to all actuators was successful: fd_N = %d, fd_S = %d, fd_E = %d, fd_W = %d, fd_UP = %d, fd_DOWN = %d\n", actuators_fd[0], actuators_fd[1], actuators_fd[2], actuators_fd[3], actuators_fd[4], actuators_fd[5]);
+    if (connect_socket(20004, &actuators_fd[4]) < 0) return -1; //Pump UP   (Z+)
+    if (connect_socket(20005, &actuators_fd[5]) < 0) return -1; //Pump DOWN (Z-)
 
     return 0;
 }
