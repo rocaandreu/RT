@@ -9,14 +9,14 @@ float pump_acceleration = 0.2f;  // Acceleration of a pump
 int pump_actuator_delay = 50;     // Delay of the pump actuator in miliseconds
 
 // Luke position in space
-float luke_pos_x = -100.0f;
-float luke_pos_y = -100.0f;
+float luke_pos_x = -1000.0f;
+float luke_pos_y = -1000.0f;
 float luke_pos_z = 0.0f;
 
 // Luke speed
-float luke_speed_x = 0.0f;
-float luke_speed_y = 0.0f;
-float luke_speed_z = 0.0f;
+float luke_speed_x = 4.0f;
+float luke_speed_y = -2.0f;
+float luke_speed_z = 1.5f;
 
 // Luke acceleration
 float luke_accel_x = 0.0f;
