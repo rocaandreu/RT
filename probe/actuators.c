@@ -46,14 +46,14 @@ int activate_actuators(int fd, char *action)
 
 int init_actuators()
 {
-    if (connect_socket(20000, &actuators_fd[3]) < 0) return -1; //Pump N (Y+)
-    if (connect_socket(20001, &actuators_fd[2]) < 0) return -1; //Pump S (Y-)
+    if (connect_socket(20000, &actuators_fd[3]) < 0) return -1; //Pump N
+    if (connect_socket(20001, &actuators_fd[2]) < 0) return -1; //Pump S
     
-    if (connect_socket(20002, &actuators_fd[0]) < 0) return -1; //Pump E (X+)
-    if (connect_socket(20003, &actuators_fd[1]) < 0) return -1; //Pump W (X-)
+    if (connect_socket(20002, &actuators_fd[0]) < 0) return -1; //Pump E 
+    if (connect_socket(20003, &actuators_fd[1]) < 0) return -1; //Pump W
 
-    if (connect_socket(20004, &actuators_fd[4]) < 0) return -1; //Pump UP   (Z+)
-    if (connect_socket(20005, &actuators_fd[5]) < 0) return -1; //Pump DOWN (Z-)
+    if (connect_socket(20004, &actuators_fd[5]) < 0) return -1; //Pump UP
+    if (connect_socket(20005, &actuators_fd[4]) < 0) return -1; //Pump DOWN
 
     return 0;
 }
