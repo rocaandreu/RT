@@ -67,7 +67,8 @@ void task_travel_XZ(void *param) //Reading period is 300ms
     activate_actuators(actuators_fd[1], "stop");
 
     //Z axis (First turn UP on, then break with DOWN)
-    time_z = sqrt(fabs((end_point[2])*2)/0.2)/2;
+    //time_z = sqrt(fabs((end_point[2])*2)/0.2)/2;
+    time_z = sqrt(fabs((end_point[2]))/0.2);
     activate_actuators(actuators_fd[5], "start");
     usleep(time_z*1000000);
     activate_actuators(actuators_fd[5], "stop");
